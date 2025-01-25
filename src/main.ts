@@ -1,11 +1,12 @@
 import { LitElement, html } from 'lit-element'
 import { litFetch } from './../lib/lit-fetch.js'
 
-class MyElement extends litFetch(LitElement, '/api/data/:id', 'test') {
+class MyElement extends litFetch(LitElement, 'lisam', '/api/data/:id/:lisa') {
    
     override connectedCallback(): void {
         super.connectedCallback();
-        this.te({ id: '123' });
+        this.lisamData
+        this.lisamFetch({ name: 'dd'})
     }
 
     render() {

@@ -9,21 +9,31 @@ type ExtractParams<T extends string> =
             ? { [K in Param]: string }
             : {};
 
-export const litFetch = <DataType, TBase extends Constructor<LitElement>>(Base: TBase, url: string, name: string) => {
+export const litFetch = <TBase extends Constructor<LitElement>, Name extends string, URL extends string>(Base: TBase, name: Name, url: URL) => {
     const dataPropName = `${name}Data`;
     const errorPropName = `${name}Error`;
     const loadingPropName = `${name}Loading`;
     const fetchPropName = `${name}Fetch`;
+
+    type dataPropNameType = {
+        [D in Name as `${D}Data`]: any | null;
+    };
+
+    type fetchPropNameType = {
+        [D in Name as `${D}Fetch`]: (params: ExtractParams<URL>) => void;
+    };
+
+    type LirFetchProps = dataPropNameType & fetchPropNameType;
     
     class LitFetchClass extends Base {
-        #data: null | DataType = null; 
+        #data: null | any = null; 
         #error: null | Error = null;
         #loading = false;
 
-        get [dataPropName](): DataType | null {
+        get [dataPropName](): any | null {
             return this.#data
         }
-        set [dataPropName](value: DataType | null) {
+        set [dataPropName](value: any | null) {
             const oldValue = this.#data;
             this.#data = value;
             this.requestUpdate(dataPropName, oldValue);
@@ -47,9 +57,9 @@ export const litFetch = <DataType, TBase extends Constructor<LitElement>>(Base: 
             this.requestUpdate(loadingPropName, oldValue);
         }
 
-        [fetchPropName](params: ExtractParams<typeof url>) {
+        [fetchPropName](params: ExtractParams<URL>) {
             
         }
     }
-    return LitFetchClass as Constructor<typeof LitFetchClass> & TBase;
+    return LitFetchClass as unknown as Constructor<LitFetchClass & LirFetchProps>;
   }
