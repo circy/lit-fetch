@@ -9,23 +9,29 @@ type ExtractParams<T extends string> =
             ? { [K in Param]: string }
             : {};
 
-export const litFetch = <TBase extends Constructor<LitElement>, Name extends string, URL extends string>(Base: TBase, name: Name, url: URL) => {
-    const dataPropName = `${name}Data`;
-    const errorPropName = `${name}Error`;
-    const loadingPropName = `${name}Loading`;
-    const fetchPropName = `${name}Fetch`;
+type LitFetchProps<RequestName extends string, RequestUrl extends string> = {
+        [D in RequestName as `${D}Data`]: any | null;
+    } & {
+        [D in RequestName as `${D}Error`]: any | null;
+    } & {
+        [D in RequestName as `${D}Loading`]: boolean | null;
+    } & {
+        [D in RequestName as `${D}Fetch`]: (params: ExtractParams<RequestUrl>) => void;
+};
 
-    type dataPropNameType = {
-        [D in Name as `${D}Data`]: any | null;
+export const getPropertyNames = (requestName: string) => {
+    return  {
+        dataPropName: `${requestName}Data`,
+        errorPropName: `${requestName}Error`,
+        loadingPropName: `${requestName}Loading`,
+        fetchPropName: `${requestName}Fetch`,
     };
+};
 
-    type fetchPropNameType = {
-        [D in Name as `${D}Fetch`]: (params: ExtractParams<URL>) => void;
-    };
-
-    type LirFetchProps = dataPropNameType & fetchPropNameType;
+export const litFetch = <TBase extends Constructor<LitElement>, RequestName extends string, RequestUrl extends string>(base: TBase, requestName: RequestName, requestUrl: RequestUrl) => {
+    const { dataPropName, errorPropName, loadingPropName, fetchPropName } = getPropertyNames(requestName);
     
-    class LitFetchClass extends Base {
+    class LitFetchClass extends base {
         #data: null | any = null; 
         #error: null | Error = null;
         #loading = false;
@@ -57,9 +63,9 @@ export const litFetch = <TBase extends Constructor<LitElement>, Name extends str
             this.requestUpdate(loadingPropName, oldValue);
         }
 
-        [fetchPropName](params: ExtractParams<URL>) {
+        [fetchPropName](params: ExtractParams<RequestUrl>) {
             
         }
     }
-    return LitFetchClass as unknown as Constructor<LitFetchClass & LirFetchProps>;
+    return LitFetchClass as unknown as Constructor<LitFetchClass & LitFetchProps<RequestName, RequestUrl>>;
   }

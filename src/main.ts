@@ -6,7 +6,8 @@ class MyElement extends litFetch(LitElement, 'lisam', '/api/data/:id/:lisa') {
     override connectedCallback(): void {
         super.connectedCallback();
         this.lisamData
-        this.lisamFetch({ name: 'dd'})
+        this.lisamFetch({ name: 'dd'});
+        this.
     }
 
     render() {
